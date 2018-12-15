@@ -7,8 +7,8 @@ import os
 app = Flask(__name__)
 
 # template title and heading
-title = "TODO app"
-heading = "A Generic TODO reminder!"
+title = "TO-DO App"
+heading = "A Generic TO-DO reminder!"
 
 # connecting to MongoDB and selecting database
 client = MongoClient("mongodb://127.0.0.1:27017")
@@ -45,8 +45,8 @@ def tasks():
 def completed():
     """Displays all completed to-do lists"""
     todos_l = todos.find({'done':'yes'})
-    a1 = "active"
-    return render_template('index.html', a1=a1,
+    a3 = "active"
+    return render_template('index.html', a3=a3,
                         todos=todos_l, t=title, h=heading)
 
 @app.route("/done")
@@ -72,12 +72,14 @@ def action():
     desc = request.values.get("desc")
     date = request.values.get("date")
     pr = request.values.get("pr")
-    todos.insert({
+    todos.insert_one({
                 "name" : name,
                 "desc" : desc,
                 "date" : date,
                 "pr" : pr,
                 "done" : "no"})
+    
+    return redirect("/list")
 
 @app.route("/remove")
 def remove():
@@ -97,23 +99,24 @@ def update():
                             h=heading,
                             t=title)
 
-@app.route("/action2",methods=['POST'])
+@app.route("/action2", methods=['POST'])
 def action2():
     """Updating a Task with various references"""
     name = request.values.get("name")
     desc = request.values.get("desc")
     date = request.values.get("date")
-    pr = request.values.get("_id")
-
-    todos.update({
-        {"_id" : ObjectId(id)},
+    pr = request.values.get("pr")
+    _id = request.values.get("_id")
+    todos.update(
+        {"_id" : ObjectId(_id)},
         {'$set': {
                     "name":name,
                     "desc":desc,
                     "date":date,
                     "pr":pr
-                  }}
-        })
+                  }
+        }
+    )
 
     return redirect("/")
 
